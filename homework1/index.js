@@ -20,3 +20,31 @@ window.addEventListener('orientationchange', () => {
 */
 console.log('------------------');
 console.log('Задание 2');
+
+const inputEl = document.querySelector('.input');
+
+/* window.addEventListener('beforeunload', (event) => {
+    event.preventDefault();
+    console.log(1)
+    if (inputEl.value.trim() == '') {
+        console.log(2)
+        confirm('Закрытие окна приведет к потере несохраненных данных. Вы уверены, что хотите покинуть страницу, не отправив форму?');
+    }
+}) */
+
+const beforeUnloadHandler = event => {
+    event.preventDefault();
+    // Кастомное отображение сообщения не работает при событии beforeunload
+    return event.returnValue = 'Закрытие окна приведет к потере несохраненных данных. Вы уверены, что хотите покинуть страницу, не отправив форму?';
+
+    // Игнорируется по версии HTML спецификации
+    // confirm('Закрытие окна приведет к потере несохраненных данных. Вы уверены, что хотите покинуть страницу, не отправив форму?');
+}
+
+inputEl.addEventListener('input', event => {
+    if(event.target.value.trim() !== '') {
+        addEventListener('beforeunload', beforeUnloadHandler, {capture: true});
+    } else {
+        removeEventListener("beforeunload", beforeUnloadHandler, {capture: true});
+    }
+})
