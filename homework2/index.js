@@ -1,3 +1,4 @@
+'use strict';
 /* 
 Урок 2. События, формы
 Скрыть
@@ -53,53 +54,44 @@ let getTemplateOfSlider = (imgs) => {
                 </div>
             </div>
         </div>
+        <div class="slider__message">
+            Для запуска режима "cлайд-шоу" нажмите пробел</div> 
     `
-}
+};
 
 let getTemplateOfImages = (imgs) => {
     let temp = '';
+    let hiddenClass;
     imgs.forEach((img, index) => {
         if (index === 0) {
-            temp += `            
-            <div class="slider__item">
-                <img 
-                    class="slider__img" 
-                    src="img/${img}" 
-                    alt="slide"
-                >
-            </div>`
+            hiddenClass = '';
         } 
         else {
-            temp += `            
-            <div class="slider__item slider__hidden">
-                <img 
-                    class="slider__img" 
-                    src="img/${img}" 
-                    alt="slide"
-                >
-            </div>`
+            hiddenClass = 'slider__hidden';
         }
-        
+        temp += `            
+        <div class="slider__item ${hiddenClass}">
+            <img 
+                class="slider__img" 
+                src="img/${img}" 
+                alt="slide"
+            >
+        </div>`
     });
     return temp;
-}
+};
 
 let getTemplateOfDottes = (length) => {
     let temp = '';
+    let activeClass;
     for (let index = 0; index < length; index++) {
         if (index === 0) {
-        temp += `
-        <a href="#" class="slider__dot-link slider__dot-link_active">
-            <svg 
-            class="slider__dot"
-            width="40px" height="40px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        </a>
-        `
+            activeClass = 'slider__dot-link_active';
         } else {
-            temp += `
-        <a href="#" class="slider__dot-link">
+            activeClass = '';
+        }
+        temp += `
+        <a href="#" class="slider__dot-link ${activeClass}" data-index="${index}">
             <svg 
             class="slider__dot"
             width="40px" height="40px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -107,10 +99,9 @@ let getTemplateOfDottes = (length) => {
             </svg>
         </a>
         `
-        }
     }
     return temp;
-}
+};
 
 
 
@@ -123,9 +114,11 @@ const rightArrowEl = contentEl.querySelector('.slider__arrow_right');
 const imgBlocksArrEl = contentEl.querySelectorAll('.slider__item');
 const linksArrEl = contentEl.querySelectorAll('.slider__dot-link');
 const paginationEl = contentEl.querySelector('.slider__pagination');
+const messageEl = contentEl.querySelector('.slider__message');
 
 let index = 0;
 const lastIndex = imgBlocksArrEl.length - 1;
+let intervalId = -Infinity;
 
 
 const toggleSlide = (currentIndex, nextIndex) => {
@@ -141,8 +134,10 @@ const handlerForLeftArrow = () => {
     let currentIndex = index;
     if (index === 0) {
         nextIndex = lastIndex;
+        index = lastIndex;
     } else {
-        nextIndex = --index;
+        index--;
+        nextIndex = index;
     }
     toggleSlide(currentIndex, nextIndex);
 }
@@ -152,16 +147,26 @@ const handlerForRightArrow = () => {
     let currentIndex = index;
     if (index === lastIndex) {
         nextIndex = 0;
+        index = 0;
     } else {
-        nextIndex = ++index;
+        index++;
+        nextIndex = index;
     }
     toggleSlide(currentIndex, nextIndex);
 }
+
 
 leftArrowEl.addEventListener('click', () => handlerForLeftArrow());
 
 rightArrowEl.addEventListener('click', () => handlerForRightArrow());
 
+paginationEl.addEventListener('click', function (e) {
+    e.preventDefault();
+    const linkEl = e.target.closest('.slider__dot-link');
+    const changeIndex = Number(linkEl.dataset['index']);
+    toggleSlide(index, changeIndex);
+    index = changeIndex;
+});
 
 document.addEventListener('keyup', (event) => {
     if(event.code === 'ArrowRight') {
@@ -170,4 +175,20 @@ document.addEventListener('keyup', (event) => {
     if(event.code === 'ArrowLeft') {
         handlerForLeftArrow();
     }
+    if(event.code === 'Space') {
+        messageEl.textContent = `Для выхода из режима "cлайд-шоу" нажмите ESC`;
+        if (intervalId === -Infinity) {
+            intervalId = setInterval(() => handlerForRightArrow(), 5000);
+        }
+    }
+    if(event.code === 'Escape') {
+        messageEl.textContent = `Для запуска режима "cлайд-шоу" нажмите пробел`;
+        if(intervalId) {
+            clearInterval(intervalId);
+            intervalId = -Infinity;
+        }
+    }
 });
+
+
+
