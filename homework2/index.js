@@ -38,8 +38,9 @@ const partialPathesOfImages = [
 let getTemplateOfSlider = (imgs) => {
     return `
     <div class="slider">
-
-            ${getTemplateOfImages(imgs)}
+            <div class="slider__img-block">
+                ${getTemplateOfImages(imgs)}
+            </div>
             <div class="slider__toolpad">
                 <svg 
                 class="slider__arrow slider__arrow_left"
@@ -63,7 +64,7 @@ let getTemplateOfImages = (imgs) => {
             <div class="slider__item">
                 <img 
                     class="slider__img" 
-                    src="img/1.jpg" 
+                    src="img/${img}" 
                     alt="slide"
                 >
             </div>`
@@ -73,7 +74,7 @@ let getTemplateOfImages = (imgs) => {
             <div class="slider__item slider__hidden">
                 <img 
                     class="slider__img" 
-                    src="img/1.jpg" 
+                    src="img/${img}" 
                     alt="slide"
                 >
             </div>`
@@ -86,7 +87,18 @@ let getTemplateOfImages = (imgs) => {
 let getTemplateOfDottes = (length) => {
     let temp = '';
     for (let index = 0; index < length; index++) {
+        if (index === 0) {
         temp += `
+        <a href="#" class="slider__dot-link slider__dot-link_active">
+            <svg 
+            class="slider__dot"
+            width="40px" height="40px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+        `
+        } else {
+            temp += `
         <a href="#" class="slider__dot-link">
             <svg 
             class="slider__dot"
@@ -95,6 +107,7 @@ let getTemplateOfDottes = (length) => {
             </svg>
         </a>
         `
+        }
     }
     return temp;
 }
@@ -105,5 +118,56 @@ let getTemplateOfDottes = (length) => {
 const contentEl = document.querySelector('.content');
 contentEl.innerHTML = getTemplateOfSlider(partialPathesOfImages);
 
-const leftArrowEl = contentEl.querySelector('slider__arrow_left');
-const rightArrowEl = contentEl.querySelector('slider__arrow_right');
+const leftArrowEl = contentEl.querySelector('.slider__arrow_left');
+const rightArrowEl = contentEl.querySelector('.slider__arrow_right');
+const imgBlocksArrEl = contentEl.querySelectorAll('.slider__item');
+const linksArrEl = contentEl.querySelectorAll('.slider__dot-link');
+const paginationEl = contentEl.querySelector('.slider__pagination');
+
+let index = 0;
+const lastIndex = imgBlocksArrEl.length - 1;
+
+
+const toggleSlide = (currentIndex, nextIndex) => {
+    imgBlocksArrEl[currentIndex].classList.add('slider__hidden');
+    linksArrEl[currentIndex].classList.remove('slider__dot-link_active');
+    imgBlocksArrEl[nextIndex].classList.remove('slider__hidden');
+    linksArrEl[nextIndex].classList.add('slider__dot-link_active');
+}
+
+
+const handlerForLeftArrow = () => {
+    let nextIndex;
+    let currentIndex = index;
+    if (index === 0) {
+        nextIndex = lastIndex;
+    } else {
+        nextIndex = --index;
+    }
+    toggleSlide(currentIndex, nextIndex);
+}
+
+const handlerForRightArrow = () => {
+    let nextIndex;
+    let currentIndex = index;
+    if (index === lastIndex) {
+        nextIndex = 0;
+    } else {
+        nextIndex = ++index;
+    }
+    toggleSlide(currentIndex, nextIndex);
+}
+
+leftArrowEl.addEventListener('click', () => handlerForLeftArrow());
+
+rightArrowEl.addEventListener('click', () => handlerForRightArrow());
+
+
+document.addEventListener('keyup', (event) => {
+    if(event.code === 'ArrowRight') {
+        handlerForRightArrow();
+    }
+    if(event.code === 'ArrowLeft') {
+        handlerForLeftArrow();
+    }
+});
