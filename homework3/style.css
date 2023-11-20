@@ -31,8 +31,8 @@
 }
 .daily-photo__author-name {
   font-size: 32px;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding-top: 40px;
+  padding-bottom: 40px;
 }
 .daily-photo__like-btn {
   display: grid;
@@ -41,15 +41,39 @@
   align-items: center;
   padding-left: 10px;
   padding-right: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   background: none;
   right: 20px;
   top: 20px;
-  opacity: 1;
-  transition: all 0.5s ease;
   font-size: 32px;
   cursor: pointer;
-  max-height: 60px;
+  transition: all 0.3s ease;
+  box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
 }
 .daily-photo__like-btn:hover {
   background-color: #eee;
+}
+.daily-photo__like-btn:active {
+  background-color: #504c4c;
+}
+.daily-photo__like-btn_active {
+  background-color: #e07979;
+  border: 1px solid #b96464;
+  color: #fff;
+}
+.daily-photo__like-btn_active:hover {
+  background-color: #ee9090;
+}
+.daily-photo__like-btn svg {
+  fill: #000000;
+  transition: all 0.3s ease;
+}
+.daily-photo__like-btn_active svg {
+  fill: #fff;
+  transition: all 0.3s ease;
+}
+.daily-photo_active {
+  box-shadow: 10px 8px 18px 0px rgba(34, 60, 80, 0.2);
+  transition: all 0.3s ease;
 }/*# sourceMappingURL=style.css.map */
