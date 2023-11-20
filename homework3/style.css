@@ -1,0 +1,55 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.center {
+  padding-left: calc(50% - 550px);
+  padding-right: calc(50% - 550px);
+  padding-top: 50px;
+  padding-bottom: 50px;
+  background-color: azure;
+  height: 100vh;
+}
+
+.daily-photo {
+  width: 100%;
+  border: 1px solid #111;
+  border-radius: 50px;
+  background-color: rgb(235, 255, 230);
+}
+.daily-photo__image {
+  width: 100%;
+  border-top-left-radius: 50px;
+  border-top-right-radius: 50px;
+  border: 1px solid #111;
+}
+.daily-photo__info {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.daily-photo__author-name {
+  font-size: 32px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.daily-photo__like-btn {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 20px;
+  align-items: center;
+  padding-left: 10px;
+  padding-right: 10px;
+  background: none;
+  right: 20px;
+  top: 20px;
+  opacity: 1;
+  transition: all 0.5s ease;
+  font-size: 32px;
+  cursor: pointer;
+  max-height: 60px;
+}
+.daily-photo__like-btn:hover {
+  background-color: #eee;
+}/*# sourceMappingURL=style.css.map */
