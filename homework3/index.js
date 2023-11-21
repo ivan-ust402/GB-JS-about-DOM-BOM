@@ -3,7 +3,7 @@
 // Создайте новое приложение, получите свой ACCESS_KEY и вставьте 
 // его на место строки 'MY_ACCESS_KEY' для проверки работоспособности 
 // приложения
-const MY_ACCESS_KEY = 'INSERT YOUR ACCESS_KEY';
+const MY_ACCESS_KEY = 'INSERT YOUR ACCESS KEY';
 const photoCardEl = document.querySelector('.daily-photo');
 
 
@@ -189,8 +189,12 @@ function deleteCookie (name) {
 
 function checkDate() {
     if (getCookie('request') === null){
-        setCookieMinutes('request','request', 1);
+        setCookie('request','request', 1);
         fetchRandomPhoto();
+
+        // Для ежеминутной смены фото
+        // setCookieMinutes('request','request', 1);
+        // fetchRandomPhoto();
     } else {
         const id = localStorage.getItem('photoid');
         fetchPhotoById(id);
@@ -229,7 +233,7 @@ checkDate();
 // Функция для ежедневной смены фото
 setInterval(() => {
     if (getCookie('request') === null) {
-        setCookieMinutes('request','request', 1);
+        setCookie('request','request', 1);
         fetchRandomPhoto();
     }
 }, 3600000);
@@ -243,7 +247,7 @@ setInterval(() => {
 // }, 70000);
 
 
-
+// deleteCookie('request');
 
 
 
