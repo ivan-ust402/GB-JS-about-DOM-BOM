@@ -3,53 +3,83 @@
 // Создайте новое приложение, получите свой ACCESS_KEY и вставьте 
 // его на место строки 'MY_ACCESS_KEY' для проверки работоспособности 
 // приложения
-const MY_ACCESS_KEY = '';
+const MY_ACCESS_KEY = 'INSERT YOUR ACCESS_KEY';
+const photoCardEl = document.querySelector('.daily-photo');
 
-function fetchRandomPhoto() {
-    fetch(`https://api.unsplash.com/photos/random`, {
+
+function fetchPhotoById(id) {
+    fetch(`https://api.unsplash.com/photos/${id}`, {
         method: 'GET',
         headers: {
-            'Authorization': `ClientID ${MY_ACCESS_KEY}`
+            'Authorization': `Client-ID ${MY_ACCESS_KEY}`
         }
     })
         .then(response => response.json())
         .then(data => {
-            console.log(data);
+            photoCardEl.innerHTML = getTemplateDailyPhoto(data);
+            toggleLike(data, photoCardEl);
+        })
+        .catch(e => {
+            console.log(e.message);
+        })
+}
+
+function fetchRandomPhoto() {
+    fetch(`https://api.unsplash.com/photos/random/`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Client-ID ${MY_ACCESS_KEY}`
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            photoCardEl.innerHTML = getTemplateDailyPhoto(data);
+            localStorage.setItem('photoid', data.id);
+            toggleLike(data, photoCardEl);
+        })
+        .catch(e => {
+            console.log(e.message);
         })
 }
 
 function addLikeToPhoto(id) {
-    fetch(`https://api.unsplash.com/photos/:${id}/like`, {
+    fetch(`https://api.unsplash.com/photos/${id}/like`, {
         method: 'POST',
         headers: {
-            'Authorization': `ClientID ${MY_ACCESS_KEY}`
+            'Authorization': `Client-ID ${MY_ACCESS_KEY}`
         }
     })
         .then(response => response.json())
         .then(data => {
             console.log(data); // Отвечает сокращенными версиями пользователя и понравившейся фотографии.
         })
+        .catch(e => {
+            console.log(e.message);
+        })
 }
 
 function removeLikeFromPhoto(id) {
-    fetch(`https://api.unsplash.com/photos/:${id}/like`, {
+    fetch(`https://api.unsplash.com/photos/${id}/like`, {
         method: 'DELETE',
         headers: {
-            'Authorization': `ClientID ${MY_ACCESS_KEY}`
+            'Authorization': `Client-ID ${MY_ACCESS_KEY}`
         }
     })
         .then(response => response.json())
         .then(data => {
             console.log(data); // Отвечает статусом 204 и пустым телом.
         })
+        .catch(e => {
+            console.log(e.message);
+        })
 }
 
 function getTemplateDailyPhoto(data) {
     return `
-    <div class="daily-photo">
+    <div class="daily-photo ${data.liked_by_user ? 'daily-photo_active': ''}">
     <img
       class="daily-photo__image"
-      src="${data.urls.small}"
+      src="${data.urls.regular}"
       alt="random photo from unsplash.com"
     />
     <div class="daily-photo__info">
@@ -58,7 +88,7 @@ function getTemplateDailyPhoto(data) {
       </h3>
       <div class="daily-photo__like-container">
         
-        <button class="daily-photo__like-btn">
+        <button class="daily-photo__like-btn ${data.liked_by_user ? 'daily-photo__like-btn_active': ''}">
           Мне нравится
           <svg
             fill="#000000"
@@ -103,7 +133,7 @@ function getTemplateDailyPhoto(data) {
             </g>
           </svg>
         </button>
-        <span class="daily-photo__like-count">${formatLikeCount(data.likes)}</span>
+        <span class="daily-photo__like-count">${formatLikeCount(Number(data.likes))}</span>
       </div>
       
     </div>
@@ -116,21 +146,104 @@ function formatLikeCount(count) {
         return `${count / 1000}K`;
     } else if (count > 999999 && count < 1000000000) {
         return `${count / 1000000}M`;
-    } else if (count > 999999999 && count < 1000000000) {
+    } else if (count > 999999999 && count < 1000000000000) {
         return `${count / 1000000000}B`;
-    } else {
+    } else if (count > 999999999999){
         return `over a billion`;
+    }
+    return count;
+}
+
+function setCookie (name, value, days) {
+    let expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + days);  
+    
+    let cookieValue = encodeURIComponent(value) + '; expires=' 
+        + expirationDate.toUTCString();
+    document.cookie = name + '=' + cookieValue;
+}
+
+function setCookieMinutes (name, value, minutes) {
+    let expirationDate = new Date();
+    expirationDate.setMinutes(expirationDate.getMinutes() + minutes);  
+    
+    let cookieValue = encodeURIComponent(value) + '; expires=' 
+        + expirationDate.toUTCString();
+    document.cookie = name + '=' + cookieValue;
+}
+
+function getCookie (name) {
+    let cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+        let [cookieName, cookieValue] = cookie.trim().split('=');
+        if (cookieName === name) {
+            return decodeURIComponent(cookieValue);
+        }
+    }
+    return null;
+}
+
+function deleteCookie (name) {
+    setCookie(name, "", 0);
+}
+
+function checkDate() {
+    if (getCookie('request') === null){
+        setCookieMinutes('request','request', 1);
+        fetchRandomPhoto();
+    } else {
+        const id = localStorage.getItem('photoid');
+        fetchPhotoById(id);
     }
 }
 
-const likeBtnEl = document.querySelector('.daily-photo__like-btn');
-const photoCardEl = document.querySelector('.daily-photo');
+function toggleLike(data, rootEl) {
+    let liked = data.liked_by_user;
+    let currentCount = Number(data.likes);
+    const likeBtnEl = rootEl.querySelector('.daily-photo__like-btn');
+    const countLikesEl = rootEl.querySelector('.daily-photo__like-count');
+    
+    likeBtnEl.addEventListener('click', () => {
+        if (liked === true) {
+            liked = false;
+            currentCount -= 1;
+            likeBtnEl.classList.remove('daily-photo__like-btn_active');
+            photoCardEl.classList.remove('daily-photo_active');
+            countLikesEl.textContent = formatLikeCount(currentCount);
+            removeLikeFromPhoto(data.id);
+
+        } else if (liked === false){
+            liked = true;
+            currentCount += 1;
+            likeBtnEl.classList.add('daily-photo__like-btn_active');
+            photoCardEl.classList.add('daily-photo_active');
+            countLikesEl.textContent = formatLikeCount(currentCount);
+            addLikeToPhoto(data.id);
+        }
+        
+    });
+}
+
+checkDate();
+
+// Функция для ежедневной смены фото
+setInterval(() => {
+    if (getCookie('request') === null) {
+        setCookieMinutes('request','request', 1);
+        fetchRandomPhoto();
+    }
+}, 3600000);
+
+// Функция для ежеминутной смены фото
+// setInterval(() => {
+//     if (getCookie('request') === null) {
+//         setCookieMinutes('request','request', 1);
+//         fetchRandomPhoto();
+//     }
+// }, 70000);
 
 
 
-likeBtnEl.addEventListener('click', () => {
-    // daily-photo__like-btn_active
-    likeBtnEl.classList.toggle('daily-photo__like-btn_active');
-    photoCardEl.classList.toggle('daily-photo_active');
-});
+
+
 

@@ -9,11 +9,10 @@
   padding-top: 50px;
   padding-bottom: 50px;
   background-color: azure;
-  height: 100vh;
 }
 
 .daily-photo {
-  width: 100%;
+  width: auto;
   border: 1px solid #111;
   border-radius: 50px;
   background-color: rgb(235, 255, 230);
